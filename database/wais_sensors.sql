@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 02, 2015 at 04:52 PM
+-- Generation Time: Mar 02, 2015 at 07:32 PM
 -- Server version: 5.5.41-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.6
 
@@ -23,6 +23,17 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `accelerometer_converted`
+--
+CREATE TABLE IF NOT EXISTS `accelerometer_converted` (
+`device` varchar(4)
+,`timestamp` datetime
+,`pitch` double(17,0)
+,`roll` double(17,0)
+);
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `accelerometer_readings`
 --
 
@@ -34,9 +45,10 @@ CREATE TABLE IF NOT EXISTS `accelerometer_readings` (
   `y` int(11) NOT NULL,
   `z` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
 
 -- --------------------------------------------------------
 
@@ -50,10 +62,25 @@ CREATE TABLE IF NOT EXISTS `battery_readings` (
   `timestamp` datetime NOT NULL,
   `value` float NOT NULL COMMENT 'Volts',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=147 ;
 
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `combined`
+--
+CREATE TABLE IF NOT EXISTS `combined` (
+`device` varchar(4)
+,`timestamp` datetime
+,`voltage` float
+,`temperature` float
+,`x` int(11)
+,`y` int(11)
+,`z` int(11)
+);
 -- --------------------------------------------------------
 
 --
@@ -69,6 +96,22 @@ CREATE TABLE IF NOT EXISTS `devices` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `humidity_readings`
+--
+
+CREATE TABLE IF NOT EXISTS `humidity_readings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `device` varchar(4) NOT NULL,
+  `timestamp` datetime NOT NULL,
+  `value` int(11) NOT NULL COMMENT 'relative humidity %',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`,`timestamp`),
+  KEY `device` (`device`,`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `internal_temperature_readings`
 --
 
@@ -78,9 +121,10 @@ CREATE TABLE IF NOT EXISTS `internal_temperature_readings` (
   `timestamp` datetime NOT NULL,
   `value` float NOT NULL COMMENT 'Celcius',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=155 ;
 
 -- --------------------------------------------------------
 
@@ -107,9 +151,28 @@ CREATE TABLE IF NOT EXISTS `location_mapping` (
   `start` datetime NOT NULL COMMENT 'When the node was first deployed here',
   `end` int(11) DEFAULT NULL COMMENT 'When the node was moved from here',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `device_2` (`device`,`start`),
   KEY `device` (`device`,`location`,`start`,`end`),
   KEY `location` (`location`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `accelerometer_converted`
+--
+DROP TABLE IF EXISTS `accelerometer_converted`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `accelerometer_converted` AS select `accelerometer_readings`.`device` AS `device`,`accelerometer_readings`.`timestamp` AS `timestamp`,round(((atan(`accelerometer_readings`.`y`,`accelerometer_readings`.`z`) * 180) / pi()),0) AS `pitch`,round(((atan(`accelerometer_readings`.`x`,sqrt(((`accelerometer_readings`.`y` * `accelerometer_readings`.`y`) + (`accelerometer_readings`.`z` * `accelerometer_readings`.`z`)))) * 180) / pi()),0) AS `roll` from `accelerometer_readings` where 1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `combined`
+--
+DROP TABLE IF EXISTS `combined`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `combined` AS select `a`.`device` AS `device`,`a`.`timestamp` AS `timestamp`,`b`.`value` AS `voltage`,`i`.`value` AS `temperature`,`a`.`x` AS `x`,`a`.`y` AS `y`,`a`.`z` AS `z` from ((`accelerometer_readings` `a` join `battery_readings` `b`) join `internal_temperature_readings` `i`) where ((`a`.`device` = `b`.`device`) and (`a`.`device` = `i`.`device`) and (`a`.`timestamp` = `b`.`timestamp`) and (`a`.`timestamp` = `i`.`timestamp`));
 
 --
 -- Constraints for dumped tables
@@ -126,6 +189,12 @@ ALTER TABLE `accelerometer_readings`
 --
 ALTER TABLE `battery_readings`
   ADD CONSTRAINT `battery_readings_ibfk_1` FOREIGN KEY (`device`) REFERENCES `devices` (`id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `humidity_readings`
+--
+ALTER TABLE `humidity_readings`
+  ADD CONSTRAINT `humidity_readings_ibfk_1` FOREIGN KEY (`device`) REFERENCES `devices` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `internal_temperature_readings`
