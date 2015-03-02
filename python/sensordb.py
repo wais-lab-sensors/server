@@ -54,11 +54,26 @@ class WaisSensorDb(object):
         else:
             cursor = self.db.cursor()
             cursor.execute(
-            "INSERT IGNORE INTO internal_temperature_readings (device, timestamp,value) VALUES (%s, %s, %s)",
-            (device, timestamp, reading))
+                "INSERT IGNORE INTO internal_temperature_readings (device, timestamp,value) VALUES (%s, %s, %s)",
+                (device, timestamp, reading))
             cursor.close()
             self.db.commit()
             self.logger.debug("Temperature stored")
+
+    def add_battery_reading(self, device, timestamp, reading):
+        self.logger.debug("Adding %s %s %f to battery readings"
+            % (device, timestamp, reading))
+        if self.db is None:
+            raise DbError()
+        else:
+            cursor = self.db.cursor()
+            cursor.execute(
+                "INSERT IGNORE INTO battery_readings (device, timestamp,value) VALUES (%s, %s, %s)",
+                (device, timestamp, reading))
+            cursor.close()
+            self.db.commit()
+            self.logger.debug("Voltage stored")
+
 
 
 
