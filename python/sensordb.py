@@ -55,7 +55,7 @@ class WaisSensorDb(object):
             cursor = self.db.cursor()
             cursor.execute(
                 "INSERT IGNORE INTO internal_temperature_readings (device, timestamp,value) VALUES (%s, %s, %s)",
-                (device, timestamp, reading))
+                (device.lower(), timestamp, reading))
             cursor.close()
             self.db.commit()
             self.logger.debug("Temperature stored")
@@ -69,7 +69,7 @@ class WaisSensorDb(object):
             cursor = self.db.cursor()
             cursor.execute(
                 "INSERT IGNORE INTO battery_readings (device, timestamp,value) VALUES (%s, %s, %s)",
-                (device, timestamp, reading))
+                (device.lower(), timestamp, reading))
             cursor.close()
             self.db.commit()
             self.logger.debug("Voltage stored")
@@ -83,7 +83,7 @@ class WaisSensorDb(object):
             cursor = self.db.cursor()
             cursor.execute(
                 "INSERT IGNORE INTO accelerometer_readings (device, timestamp,x, y, z) VALUES (%s, %s, %s, %s, %s)",
-                (device, timestamp, x, y, z))
+                (device.lower(), timestamp, x, y, z))
             cursor.close()
             self.db.commit()
             self.logger.debug("accelerometer stored")
