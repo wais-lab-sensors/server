@@ -2,7 +2,7 @@ from configobj import ConfigObj
 import MySQLdb
 import logging
 
-class WaisSenseDb(object):
+class WaisSensorDb(object):
     def __init__(self, config_file, logging_level=logging.ERROR):
         logging.basicConfig()
         self.logger = logging.getLogger("WaisSenseDb")
