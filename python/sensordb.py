@@ -3,7 +3,7 @@ import MySQLdb
 import logging
 
 class WaisSensorDb(object):
-    def __init__(self, config_file, logging_level=logging.ERROR):
+    def __init__(self, config_file="./db.ini", logging_level=logging.ERROR):
         logging.basicConfig()
         self.logger = logging.getLogger("WaisSenseDb")
         self.logger.setLevel(logging_level)
