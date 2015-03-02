@@ -74,6 +74,23 @@ class WaisSensorDb(object):
             self.db.commit()
             self.logger.debug("Voltage stored")
 
+    def add_accelerometer_reading(self, device, timestamp, x, y , z):
+        self.logger.debug("Adding %s %s %d %d %d to battery readings"
+            % (device, timestamp, x, y, z))
+        if self.db is None:
+            raise DbError()
+        else:
+            cursor = self.db.cursor()
+            cursor.execute(
+                "INSERT IGNORE INTO accelerometer_readings (device, timestamp,x, y, z) VALUES (%s, %s, %s, %s, %s)",
+                (device, timestamp, x, y, z))
+            cursor.close()
+            self.db.commit()
+            self.logger.debug("accelerometer stored")
+
+    def __del__(self):
+        self.logger.debug("Closing db connection")
+        self.db.close()
 
 
 
