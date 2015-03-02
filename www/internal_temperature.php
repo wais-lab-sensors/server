@@ -21,6 +21,8 @@
         strokeWidth: 2,
         height: 600,
         width: 800,
+        ylabel: "Temperature (C)",
+        xlabel: "Date",
         }
     );
 </script>
