@@ -50,6 +50,13 @@ class WaisFetcher(object):
             self.db.add_internal_temperature_reading(device, timestamp, float(data["reading"]["internal"]))
         if "battery" in data["reading"].keys():
             self.db.add_battery_reading(device, timestamp, float(data["reading"]["battery"]))
+        if ("x" in data["reading"].keys() 
+                and "y" in data["reading"].keys() 
+                and "z" in data["reading"].keys()):
+            self.db.add_accelerometer_reading(device, timestamp, 
+                int(data["reading"]["x"]), 
+                int(data["reading"]["y"]), 
+                int(data["reading"]["z"]))
         
 
     def run(self):
