@@ -37,7 +37,7 @@ class WaisFetcher(object):
 
     def fetch_json(self, url):
         i = 1
-        while i < self.retries:
+        while i <= self.retries:
             self.logger.info("Fetching from %s" % url)
             self.logger.info("Retry %d/%d" % (i, self.retries))
             try:
