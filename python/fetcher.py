@@ -28,7 +28,7 @@ class WaisFetcher(object):
             config = ConfigObj(config_file)
             self.database_config = config["database_config"]
             self.prefix = config["prefix"]
-            self.timeout = config["timeout"]
+            self.timeout = float(config["timeout"])
         except KeyError:
             raise Exception("Invalid config File")
         self.logger.info("Using prefix %s" % self.prefix)
@@ -37,7 +37,8 @@ class WaisFetcher(object):
     def fetch_json(self, url):
         try:
             self.logger.info("Fetching from %s" % url)
-            return json_loads(urlopen(url).read())
+            self.logger.info("Timeout set to %f" % self.timeout)
+            return json_loads(urlopen(url, timeout=self.timeout).read())
         except URLError:
             self.logger.error("Unable to get data from %s" % url)
             return None
