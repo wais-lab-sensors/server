@@ -46,6 +46,13 @@ class WaisSensorDb(object):
                 ret.append(s[0])
         return ret
 
+    def get_current_locations(self):
+        if not self.connected():
+            raise DbError()
+        self.db.query("SELECT * FROM current_locations;")
+        return self.db.store_result().fetch_row(0)
+
+
     def add_internal_temperature_reading(self, device, timestamp, reading):
         self.logger.debug("Adding %s %s %f to internal temperature readings"
             % (device, timestamp, reading))
