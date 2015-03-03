@@ -29,22 +29,26 @@ class WaisFetcher(object):
             self.database_config = config["database_config"]
             self.prefix = config["prefix"]
             self.timeout = float(config["timeout"])
+            self.retries = int(config["retries"])
         except KeyError:
             raise Exception("Invalid config File")
         self.logger.info("Using prefix %s" % self.prefix)
         self.logger.info("Using database config %s" % self.database_config)
 
     def fetch_json(self, url):
-        try:
+        i = 1
+        while i < self.retries:
             self.logger.info("Fetching from %s" % url)
-            self.logger.info("Timeout set to %f" % self.timeout)
-            return json_loads(urlopen(url, timeout=self.timeout).read())
-        except URLError:
-            self.logger.error("Unable to get data from %s" % url)
-            return None
-        except ValueError:
-            self.logger.error("Unable to parse Json")
-            return None
+            self.logger.info("Retry %d/%d" % (i, self.retries))
+            try:
+                return json_loads(urlopen(url, timeout=self.timeout).read())
+            except URLError:
+                self.logger.error("Unable to get data from %s" % url)
+                i += 1
+            except ValueError:
+                self.logger.error("Unable to parse Json")
+                i += 1
+        return None
 
     def process_reading(self, device, timestamp, data):
         if "internal" in data["reading"].keys():
@@ -63,6 +67,7 @@ class WaisFetcher(object):
     def run(self):
         sensors = self.db.list_sensors()
         timestamp = datetime.utcnow()
+        timestamp.replace(second=0)
         for s in sensors:
             try:
                 self.logger.info("Processing %s" % s)

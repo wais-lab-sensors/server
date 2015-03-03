@@ -1,3 +1,4 @@
 prefix="aaaa::"
 db_config="./db.ini"
-timeout=1
+timeout=10
+retires=3
