@@ -82,7 +82,7 @@ class WaisSensorDb(object):
             self.logger.debug("Voltage stored")
 
     def add_accelerometer_reading(self, device, timestamp, x, y , z):
-        self.logger.debug("Adding %s %s %d %d %d to battery readings"
+        self.logger.debug("Adding %s %s %d %d %d to accelerometer readings"
             % (device, timestamp, x, y, z))
         if self.db is None:
             raise DbError()
