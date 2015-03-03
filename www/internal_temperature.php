@@ -15,7 +15,7 @@
 <script type="text/javascript">
   g = new Dygraph(
     document.getElementById("tempdiv"),
-        "http://wsn.ecs.soton.ac.uk/wais-sensors/internal_temperature_data.py",{
+        "http://<?php echo $_SERVER['SERVER_NAME'];?>/wais-sensors/internal_temperature_data.py",{
         lengend: "always",
         showRoller: true,
         strokeWidth: 2,
