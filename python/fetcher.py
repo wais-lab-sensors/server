@@ -16,7 +16,7 @@ DEFAULT_CONFIG_FILE = "./fetcher.ini"
 class WaisFetcher(object):
 
     def __init__(self, config_file, logging_level):
-        logging_basicConfig()
+        logging_basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.logger = getLogger("WaisFetcher")
         self.logger.setLevel(logging_level)
         self.parse_config(config_file)
