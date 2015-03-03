@@ -67,7 +67,7 @@ class WaisFetcher(object):
     def run(self):
         sensors = self.db.list_sensors()
         timestamp = datetime.utcnow()
-        timestamp.replace(second=0)
+        timestamp = timestamp.replace(second=0)
         for s in sensors:
             try:
                 self.logger.info("Processing %s" % s)
