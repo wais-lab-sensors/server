@@ -21,7 +21,7 @@
         strokeWidth: 2,
         height: 600,
         width: 800,
-        ylabel: "Temperature (C)",
+        ylabel: "Relative Humidity (&#37)",
         xlabel: "Date",
          // add highlight for weekends
         underlayCallback: function (canvas, area, g) {
