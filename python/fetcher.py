@@ -62,6 +62,10 @@ class WaisFetcher(object):
                 int(data["reading"]["x"]), 
                 int(data["reading"]["y"]), 
                 int(data["reading"]["z"]))
+        if "temperature" in data["reading"].keys():
+            self.db.add_temperature_reading(device, timestamp, float(data["reading"]["temperature"]))
+        if "humidity" in data["reading"].keys():
+            self.db.add_humidity_reading(device, timestamp, float(data["reading"]["humidity"]))
         
 
     def run(self):

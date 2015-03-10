@@ -95,6 +95,34 @@ class WaisSensorDb(object):
             self.db.commit()
             self.logger.debug("accelerometer stored")
 
+    def add_temperature_reading(self, device, timestamp, reading):
+        self.logger.debug("Adding %s %s %f to temperature readings"
+            % (device, timestamp, reading))
+        if self.db is None:
+            raise DbError()
+        else:
+            cursor = self.db.cursor()
+            cursor.execute(
+                "INSERT IGNORE INTO temperature_readings (device, timestamp,value) VALUES (%s, %s, %s)",
+                (device.lower(), timestamp, reading))
+            cursor.close()
+            self.db.commit()
+            self.logger.debug("Temperature stored")
+
+    def add_humidity_reading(self, device, timestamp, reading):
+        self.logger.debug("Adding %s %s %f to humidity readings"
+            % (device, timestamp, reading))
+        if self.db is None:
+            raise DbError()
+        else:
+            cursor = self.db.cursor()
+            cursor.execute(
+                "INSERT IGNORE INTO humidity_readings (device, timestamp,value) VALUES (%s, %s, %s)",
+                (device.lower(), timestamp, reading))
+            cursor.close()
+            self.db.commit()
+            self.logger.debug("Humidity stored")
+
     def get_all_temperatures(self):
         self.logger.debug("Getting temperatures")
         sensors = self.list_sensors(False)
