@@ -124,7 +124,7 @@ class WaisSensorDb(object):
             self.logger.debug("Humidity stored")
 
     def get_all_internal_temperatures(self):
-        self.logger.debug("Getting temperatures")
+        self.logger.debug("Getting internal temperatures")
         sensors = self.list_sensors(False)
         data_raw = {}
         for s in sensors:
@@ -154,6 +154,67 @@ class WaisSensorDb(object):
             data.append(a)
         return data
 
+    def get_all_temperatures(self):
+        self.logger.debug("Getting temperatures")
+        sensors = self.list_sensors(False)
+        data_raw = {}
+        for s in sensors:
+            temperature_raw = self.get_temperatures(s)
+            for d in temperature_raw:
+                device = d[0]
+                timestamp = d[1]
+                value = d[2]
+                if not timestamp in data_raw.keys():
+                    #not a previously seen timestamp
+                    data_raw[timestamp] = {}
+                data_raw[timestamp][device] = value
+        header = []
+        data = []
+        data.append(header)
+        header.append("timestamp")
+        header.extend(sensors)
+        timestamps = sorted(data_raw.keys())
+        for t in timestamps:
+            a = []
+            a.append(t)
+            for s in sensors:
+                try:
+                    a.append(data_raw[t][s])
+                except KeyError:
+                    a.append(None)
+            data.append(a)
+        return data
+
+    def get_all_humidities(self):
+        self.logger.debug("Getting humidities")
+        sensors = self.list_sensors(False)
+        data_raw = {}
+        for s in sensors:
+            humidity_raw = self.get_humidities(s)
+            for d in humidity_raw:
+                device = d[0]
+                timestamp = d[1]
+                value = d[2]
+                if not timestamp in data_raw.keys():
+                    #not a previously seen timestamp
+                    data_raw[timestamp] = {}
+                data_raw[timestamp][device] = value
+        header = []
+        data = []
+        data.append(header)
+        header.append("timestamp")
+        header.extend(sensors)
+        timestamps = sorted(data_raw.keys())
+        for t in timestamps:
+            a = []
+            a.append(t)
+            for s in sensors:
+                try:
+                    a.append(data_raw[t][s])
+                except KeyError:
+                    a.append(None)
+            data.append(a)
+        return data
 
     def get_all_voltages(self):
         self.logger.debug("Getting voltages")
@@ -191,7 +252,19 @@ class WaisSensorDb(object):
             raise DbError()
         self.db.query("SELECT device, timestamp, value FROM internal_temperature_readings WHERE device = '%s';" % device.lower())
         return self.db.store_result().fetch_row(0)
-        
+
+    def get_temperatures(self, device):
+        if not self.connected():
+            raise DbError()
+        self.db.query("SELECT device, timestamp, value FROM temperature_readings WHERE device = '%s';" % device.lower())
+        return self.db.store_result().fetch_row(0)
+    
+    def get_humidities(self, device):
+        if not self.connected():
+            raise DbError()
+        self.db.query("SELECT device, timestamp, value FROM humidity_readings WHERE device = '%s';" % device.lower())
+        return self.db.store_result().fetch_row(0)
+
     def get_voltages(self, device):
         if not self.connected():
             raise DbError()
