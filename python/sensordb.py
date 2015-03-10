@@ -123,7 +123,7 @@ class WaisSensorDb(object):
             self.db.commit()
             self.logger.debug("Humidity stored")
 
-    def get_all_temperatures(self):
+    def get_all_internal_temperatures(self):
         self.logger.debug("Getting temperatures")
         sensors = self.list_sensors(False)
         data_raw = {}
