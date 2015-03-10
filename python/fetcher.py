@@ -6,7 +6,7 @@ from configobj import ConfigObj
 from urllib2 import URLError, urlopen
 from json import loads as json_loads
 from datetime import datetime
-
+from socket import error as socket_error
 import sensordb
 
 DEFAULT_LOG_LEVEL = ERROR
@@ -47,6 +47,9 @@ class WaisFetcher(object):
                 i += 1
             except ValueError:
                 self.logger.error("Unable to parse Json")
+                i += 1
+            except socket_error:
+                self.logger.error("Socket error recieved")
                 i += 1
         return None
 
