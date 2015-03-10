@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 02, 2015 at 07:32 PM
+-- Generation Time: Mar 10, 2015 at 12:02 PM
 -- Server version: 5.5.41-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.6
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `accelerometer_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12446 ;
 
 -- --------------------------------------------------------
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `battery_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=147 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12448 ;
 
 -- --------------------------------------------------------
 
@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS `combined` (
 ,`x` int(11)
 ,`y` int(11)
 ,`z` int(11)
+);
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `current_locations`
+--
+CREATE TABLE IF NOT EXISTS `current_locations` (
+`device` varchar(4)
+,`description` text
 );
 -- --------------------------------------------------------
 
@@ -107,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `humidity_readings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`,`timestamp`),
   KEY `device` (`device`,`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 -- --------------------------------------------------------
 
@@ -124,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `internal_temperature_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=155 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12456 ;
 
 -- --------------------------------------------------------
 
@@ -149,12 +158,29 @@ CREATE TABLE IF NOT EXISTS `location_mapping` (
   `device` varchar(4) NOT NULL,
   `location` varchar(2) NOT NULL,
   `start` datetime NOT NULL COMMENT 'When the node was first deployed here',
-  `end` int(11) DEFAULT NULL COMMENT 'When the node was moved from here',
+  `end` datetime DEFAULT NULL COMMENT 'When the node was moved from here',
   PRIMARY KEY (`id`),
   UNIQUE KEY `device_2` (`device`,`start`),
   KEY `device` (`device`,`location`,`start`,`end`),
   KEY `location` (`location`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `temperature_readings`
+--
+
+CREATE TABLE IF NOT EXISTS `temperature_readings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `device` varchar(4) NOT NULL,
+  `timestamp` datetime NOT NULL,
+  `value` float NOT NULL COMMENT 'Celcius',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `device_2` (`device`,`timestamp`),
+  KEY `device` (`device`),
+  KEY `timestamp` (`timestamp`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -173,6 +199,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `combined`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `combined` AS select `a`.`device` AS `device`,`a`.`timestamp` AS `timestamp`,`b`.`value` AS `voltage`,`i`.`value` AS `temperature`,`a`.`x` AS `x`,`a`.`y` AS `y`,`a`.`z` AS `z` from ((`accelerometer_readings` `a` join `battery_readings` `b`) join `internal_temperature_readings` `i`) where ((`a`.`device` = `b`.`device`) and (`a`.`device` = `i`.`device`) and (`a`.`timestamp` = `b`.`timestamp`) and (`a`.`timestamp` = `i`.`timestamp`));
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `current_locations`
+--
+DROP TABLE IF EXISTS `current_locations`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `current_locations` AS select `lm`.`device` AS `device`,`l`.`Description` AS `description` from (`location_mapping` `lm` left join `locations` `l` on((`lm`.`location` = `l`.`id`))) where isnull(`lm`.`end`);
 
 --
 -- Constraints for dumped tables
@@ -206,8 +241,8 @@ ALTER TABLE `internal_temperature_readings`
 -- Constraints for table `location_mapping`
 --
 ALTER TABLE `location_mapping`
-  ADD CONSTRAINT `location_mapping_ibfk_2` FOREIGN KEY (`location`) REFERENCES `locations` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `location_mapping_ibfk_1` FOREIGN KEY (`device`) REFERENCES `devices` (`id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `location_mapping_ibfk_1` FOREIGN KEY (`device`) REFERENCES `devices` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `location_mapping_ibfk_2` FOREIGN KEY (`location`) REFERENCES `locations` (`id`) ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
