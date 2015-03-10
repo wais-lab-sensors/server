@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 10, 2015 at 12:02 PM
+-- Generation Time: Mar 10, 2015 at 02:04 PM
 -- Server version: 5.5.41-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.6
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `accelerometer_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12446 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12563 ;
 
 -- --------------------------------------------------------
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `battery_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12448 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12565 ;
 
 -- --------------------------------------------------------
 
@@ -112,11 +112,11 @@ CREATE TABLE IF NOT EXISTS `humidity_readings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `device` varchar(4) NOT NULL,
   `timestamp` datetime NOT NULL,
-  `value` int(11) NOT NULL COMMENT 'relative humidity %',
+  `value` float NOT NULL COMMENT 'relative humidity %',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`,`timestamp`),
   KEY `device` (`device`,`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=32 ;
 
 -- --------------------------------------------------------
 
@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `internal_temperature_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12456 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12573 ;
 
 -- --------------------------------------------------------
 
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `temperature_readings` (
   UNIQUE KEY `device_2` (`device`,`timestamp`),
   KEY `device` (`device`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=115 ;
 
 -- --------------------------------------------------------
 
