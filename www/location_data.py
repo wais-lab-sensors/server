@@ -8,7 +8,7 @@ def index(req):
     req.content_type = "text/plain"
     database = sensordb.WaisSensorDb("/opt/wais-sensor-server/python/db.ini")
     data = database.get_current_locations()
-    output = "{"
+    output = "{\n"
     #for line in data:
     #    output +="\"%s\":\"%s\",\n" %(line[0], line[1])
     #output += "}"
