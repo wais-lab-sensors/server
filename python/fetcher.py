@@ -49,7 +49,7 @@ class WaisFetcher(object):
                 self.logger.error("Unable to parse Json")
                 i += 1
             except socket_error:
-                self.logger.error("Socket error recieved")
+                self.logger.error("Socket error recieved from %s" % url)
                 i += 1
         return None
 
