@@ -1,5 +1,5 @@
 from configobj import ConfigObj
-import MySQLdb
+import mysql.connector
 import logging
 
 class WaisSensorDb(object):
@@ -18,11 +18,11 @@ class WaisSensorDb(object):
         password = self.db_config.password
         database = self.db_config.database
         try:
-            db = MySQLdb.connect(host=host, user=user,
-            passwd=password, db=database)
+            db = mysql.connector.connect(host=host, user=user,
+            password=password, database=database)
             self.logger.info("Connected to database %s on %s" %(database, host))
             self.db = db
-        except MySQLdb.Error, e:
+        except mysql.connector.Error as e:
             self.logger.critical("Unable to connect to db %s on %s as user %s" %
             (database, host, user))
             self.logger.critical(e)
@@ -38,8 +38,10 @@ class WaisSensorDb(object):
         """
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT * FROM devices;")
-        sensors = self.db.store_result().fetch_row(0)
+        cursor = self.db.cursor()
+        cursor.execute("SELECT * FROM devices;")
+        sensors = cursor.fetchall()
+        cursor.close()
         ret = []
         for s in sensors:
             if(not check_enabled) or (check_enabled and s[1]):
@@ -49,9 +51,11 @@ class WaisSensorDb(object):
     def get_current_locations(self):
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT * FROM current_locations;")
-        return self.db.store_result().fetch_row(0)
-
+        cursor = self.db.cursor()
+        cursor.execute("SELECT * FROM current_locations;")
+        locations = cursor.fetchall()
+        cursor.close()
+        return locations
 
     def add_internal_temperature_reading(self, device, timestamp, reading):
         self.logger.debug("Adding %s %s %f to internal temperature readings"
@@ -250,26 +254,38 @@ class WaisSensorDb(object):
     def get_internal_temperatures(self, device):
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT device, timestamp, value FROM internal_temperature_readings WHERE device = '%s';" % device.lower())
-        return self.db.store_result().fetch_row(0)
+        cursor = self.db.cursor()
+        cursor.execute("SELECT device, timestamp, value FROM internal_temperature_readings WHERE device = '%s';" % device.lower())
+        temps = cursor.fetchall()
+        cursor.close()
+        return temps
 
     def get_temperatures(self, device):
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT device, timestamp, value FROM temperature_readings WHERE device = '%s';" % device.lower())
-        return self.db.store_result().fetch_row(0)
+        cursor = self.db.cursor()
+        cursor.execute("SELECT device, timestamp, value FROM temperature_readings WHERE device = '%s';" % device.lower())
+        temps = cursor.fetchall()
+        cursor.close()
+        return temps
     
     def get_humidities(self, device):
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT device, timestamp, value FROM humidity_readings WHERE device = '%s';" % device.lower())
-        return self.db.store_result().fetch_row(0)
+        cursor = self.db.cursor()
+        cursor.execute("SELECT device, timestamp, value FROM humidity_readings WHERE device = '%s';" % device.lower())
+        humidities = cursor.fetchall()
+        cursor.close()
+        return humidities
 
     def get_voltages(self, device):
         if not self.connected():
             raise DbError()
-        self.db.query("SELECT device, timestamp, value FROM battery_readings WHERE device = '%s';" % device.lower())
-        return self.db.store_result().fetch_row(0)
+        cursor = self.db.cursor()
+        cursor.execute("SELECT device, timestamp, value FROM battery_readings WHERE device = '%s';" % device.lower())
+        volts = cursor.fetchall()
+        cursor.close()
+        return volts
     
     def __del__(self):
         self.logger.debug("Closing db connection")
