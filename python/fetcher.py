@@ -15,12 +15,13 @@ DEFAULT_CONFIG_FILE = "./fetcher.ini"
 
 class WaisFetcher(object):
 
-    def __init__(self, config_file, logging_level):
+    def __init__(self, config_file, logging_level, is_test):
         logging_basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.logger = getLogger("WaisFetcher")
         self.logger.setLevel(logging_level)
         self.parse_config(config_file)
-        self.db = sensordb.WaisSensorDb(self.database_config, logging_level)
+        if not is_test:
+            self.db = sensordb.WaisSensorDb(self.database_config, logging_level)
 
     def parse_config(self, config_file):
         self.logger.debug("Parseig_config")
@@ -71,8 +72,13 @@ class WaisFetcher(object):
             self.db.add_humidity_reading(device, timestamp, float(data["reading"]["humidity"]))
         
 
-    def run(self):
-        sensors = self.db.list_sensors()
+    def run(self, test_node=None):
+
+        if test_node:
+            sensors = [test_node]
+        else:
+            sensors = self.db.list_sensors()
+
         timestamp = datetime.utcnow()
         timestamp = timestamp.replace(second=0)
         for s in sensors:
@@ -80,8 +86,10 @@ class WaisFetcher(object):
                 self.logger.info("Processing %s" % s)
                 url = "http://[%s%s]" %(self.prefix, s)
                 json = self.fetch_json(url)
-                if json is not None:
+                if json and not test_node:
                     self.process_reading(s, timestamp, json)
+                else:
+                    print(json)
             except Exception as e:
                 self.logger.error("Unexpected error")
                 self.logger.error("%s" % e)
@@ -105,15 +113,18 @@ if __name__ == "__main__":
     PARSER.add_option("-c", "--config", action="store",
         type="string", dest="config_file",
         help="Config file containing database credentials")
+    PARSER.add_option("-t", "--test", action="store",
+        type="string", dest="test_node", metavar="IP",
+        help="Fetch data from IP, parse and print it, but do not store it in the DB")
     (OPTIONS, ARGS) = PARSER.parse_args()
     if OPTIONS.quiet:
         LOG_LEVEL = CRITICAL
     elif OPTIONS.verbose:
         LOG_LEVEL = DEBUG
-    if OPTIONS.config_file is None:
-        CONFIG = DEFAULT_CONFIG_FILE
-    else:
+    if OPTIONS.config_file:
         CONFIG = OPTIONS.config_file
-    FETCHER = WaisFetcher(CONFIG, LOG_LEVEL)
-    FETCHER.run()
+    else:
+        CONFIG = DEFAULT_CONFIG_FILE
+    FETCHER = WaisFetcher(CONFIG, LOG_LEVEL, OPTIONS.test_node)
+    FETCHER.run(OPTIONS.test_node)
 
