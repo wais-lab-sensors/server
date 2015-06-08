@@ -12,7 +12,6 @@ import aiocoap as coap
 DEFAULT_LOG_LEVEL = ERROR
 DEFAULT_CONFIG_FILE = "./fetcher.ini"
 
-
 class WaisFetcher(object):
 
     def __init__(self, config_file, logging_level, is_test):
@@ -38,22 +37,22 @@ class WaisFetcher(object):
 
     @asyncio.coroutine
     def fetch_json(self, protocol, url):
-        i = 1
+        attempt = 1
 
         request = coap.Message(code=coap.GET)
         request.set_request_uri(url)
 
-        while i <= self.retries:
+        while attempt <= self.retries:
             self.logger.info("Fetching from %s" % url)
-            self.logger.info("Retry %d/%d" % (i, self.retries))
+            self.logger.info("Retry %d/%d" % (attempt, self.retries))
             try:
                 response = yield from asyncio.wait_for(protocol.request(request).response, self.timeout)
                 return json.loads(response.payload.decode("utf-8"))
             except Exception as e:
                 self.logger.error("Unable to get data from %s" % url)
-                self.logger.error("%s" % e)
-                i += 1
-        return None
+                attempt += 1
+
+        raise CommsFailure()
 
     def process_reading(self, device, timestamp, data):
         if "internal" in data["reading"].keys():
@@ -88,14 +87,18 @@ class WaisFetcher(object):
                 self.logger.info("Processing %s" % s)
                 url = "coap://[%s%s]" %(self.prefix, s)
                 json = yield from self.fetch_json(protocol, url)
-                if json and not test_node:
-                    self.process_reading(s, timestamp, json)
-                else:
+                if test_node:
                     print(json)
+                else:
+                    self.process_reading(s, timestamp, json)
+            except CommsFailure as e:
+                self.logger.error("Failed to communicate with node %s" % s)
             except Exception as e:
                 self.logger.error("Unexpected error")
                 self.logger.error("%s" % e)
 
+class CommsFailure(Exception):
+    pass
 
 
 
